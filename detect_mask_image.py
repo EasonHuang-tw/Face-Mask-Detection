@@ -11,6 +11,7 @@ import cv2
 import os
 import rospy
 from cv_bridge import CvBridge,CvBridgeError
+from std_msgs.msg import Int16
 from sensor_msgs.msg import Image
 bridge = CvBridge()
 def mask_image():
@@ -39,7 +40,9 @@ def mask_image():
         print("[INFO] loading face mask detector model...")
         model = load_model(args["model"])
 
-        image_pub = rospy.Publisher("image_topic_2",Image)
+        #image_pub = rospy.Publisher("image_topic_2",Image)
+        has_mask_pub = rospy.Publisher("has_mask",Int16)
+
         has_face = 0
         cap = cv2.VideoCapture(0)
         while(1):
@@ -100,7 +103,11 @@ def mask_image():
                         label = "Mask" if mask > withoutMask else "No Mask"
                         if i == 0:
                             if not mask > withoutMask:
-                                image_pub.publish(image_message)
+                                #image_pub.publish(image_message)
+                                has_mask_pub.publish(0)
+                            else:
+                                has_mask_pub.publish(1)
+
                         color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
 
                         # include the probability in the label
